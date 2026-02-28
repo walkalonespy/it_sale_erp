@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="th" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IT Sales ERP</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'IBM Plex Sans Thai', sans-serif; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .animate-slideIn { animation: slideIn 0.3s ease-out; }
+    .animate-pulse { animation: pulse 1.5s infinite; }
+  </style>
+</head>
+<body class="h-full bg-slate-900 text-gray-100">
+  <div id="app" class="h-full flex flex-col overflow-hidden">
+    
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-slate-800 to-slate-900 border-b border-slate-700 px-6 py-4 flex-shrink-0">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+          </div>
+          <div>
+            <h1 id="app-title" class="text-xl font-bold text-white">IT Sales ERP</h1>
+            <p id="company-name" class="text-sm text-slate-400">ระบบจัดการงานขาย IT</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div id="stats-summary" class="hidden md:flex items-center gap-6 mr-6">
+            <div class="text-center">
+              <p class="text-2xl font-bold text-emerald-400" id="total-deals">0</p>
+              <p class="text-xs text-slate-400">ดีลทั้งหมด</p>
+            </div>
+            <div class="text-center">
+              <p class="text-2xl font-bold text-cyan-400" id="total-value">฿0</p>
+              <p class="text-xs text-slate-400">มูลค่ารวม</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="bg-slate-800/50 border-b border-slate-700 px-6 flex-shrink-0">
+      <div class="flex gap-1 overflow-x-auto scrollbar-thin">
+        <button onclick="switchTab('dashboard')" data-tab="dashboard" class="tab-btn px-5 py-3 text-sm font-medium rounded-t-lg transition-all text-emerald-400 bg-slate-900 border-t-2 border-emerald-400">
+          📊 แดชบอร์ด
+        </button>
+        <button onclick="switchTab('leads')" data-tab="leads" class="tab-btn px-5 py-3 text-sm font-medium rounded-t-lg transition-all text-slate-400 hover:text-white hover:bg-slate-700/50">
+          👥 ลูกค้าเป้าหมาย
+        </button>
+        <button onclick="switchTab('deals')" data-tab="deals" class="tab-btn px-5 py-3 text-sm font-medium rounded-t-lg transition-all text-slate-400 hover:text-white hover:bg-slate-700/50">
+          💼 ดีล/โอกาส
+        </button>
+        <button onclick="switchTab('pipeline')" data-tab="pipeline" class="tab-btn px-5 py-3 text-sm font-medium rounded-t-lg transition-all text-slate-400 hover:text-white hover:bg-slate-700/50">
+          📈 Pipeline
+        </button>
+        <button onclick="switchTab('tasks')" data-tab="tasks" class="tab-btn px-5 py-3 text-sm font-medium rounded-t-lg transition-all text-slate-400 hover:text-white hover:bg-slate-700/50">
+          ✅ งานที่ต้องทำ
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-auto scrollbar-thin p-6">
+      
+      <!-- Dashboard Tab -->
+      <div id="tab-dashboard" class="tab-content animate-slideIn">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 rounded-2xl p-5 border border-emerald-500/30">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-emerald-300 text-sm">ลูกค้าเป้าหมาย</p>
+                <p class="text-3xl font-bold text-white mt-1" id="dash-leads">0</p>
+              </div>
+              <div class="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center">
+                <span class="text-2xl">👥</span>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 rounded-2xl p-5 border border-cyan-500/30">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-cyan-300 text-sm">ดีลที่กำลังดำเนินการ</p>
+                <p class="text-3xl font-bold text-white mt-1" id="dash-active-deals">0</p>
+              </div>
+              <div class="w-12 h-12 bg-cyan-500/20 rounded-xl flex items-center justify-center">
+                <span class="text-2xl">💼</span>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gradient-to-br from-amber-500/20 to-amber-600/10 rounded-2xl p-5 border border-amber-500/30">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-amber-300 text-sm">มูลค่า Pipeline</p>
+                <p class="text-3xl font-bold text-white mt-1" id="dash-pipeline-value">฿0</p>
+              </div>
+              <div class="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center">
+                <span class="text-2xl">💰</span>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gradient-to-br from-purple-500/20 to-purple-600/10 rounded-2xl p-5 border border-purple-500/30">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-purple-300 text-sm">ดีลที่ปิดได้</p>
+                <p class="text-3xl font-bold text-white mt-1" id="dash-won-deals">0</p>
+              </div>
+              <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                <span class="text-2xl">🏆</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activities -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-slate-800/50 rounded-2xl border border-slate-700 p-5">
+            <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <span class="text-emerald-400">📋</span> กิจกรรมล่าสุด
+            </h3>
+            <div id="recent-activities" class="space-y-3 max-h-64 overflow-auto scrollbar-thin">
+              <p class="text-slate-400 text-sm text-center py-4">ยังไม่มีกิจกรรม</p>
+            </div>
+          </div>
+          <div class="bg-slate-800/50 rounded-2xl border border-slate-700 p-5">
+            <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <span class="text-cyan-400">⏰</span> งานที่ใกล้ถึงกำหนด
+            </h3>
+            <div id="upcoming-tasks" class="space-y-3 max-h-64 overflow-auto scrollbar-thin">
+              <p class="text-slate-400 text-sm text-center py-4">ยังไม่มีงาน</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Leads Tab -->
+      <div id="tab-leads" class="tab-content hidden">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <h2 class="text-2xl font-bold text-white">👥 ลูกค้าเป้าหมาย</h2>
+          <button onclick="openModal('lead')" class="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2">
+            <span>➕</span> เพิ่มลูกค้าใหม่
+          </button>
+        </div>
+        <div id="leads-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <p class="text-slate-400 col-span-full text-center py-8">กำลังโหลดข้อมูล...</p>
+        </div>
+      </div>
+
+      <!-- Deals Tab -->
+      <div id="tab-deals" class="tab-content hidden">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <h2 class="text-2xl font-bold text-white">💼 ดีล/โอกาสการขาย</h2>
+          <button onclick="openModal('deal')" class="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2">
+            <span>➕</span> สร้างดีลใหม่
+          </button>
+        </div>
+        <div id="deals-list" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <p class="text-slate-400 col-span-full text-center py-8">กำลังโหลดข้อมูล...</p>
+        </div>
+      </div>
+
+      <!-- Pipeline Tab -->
+      <div id="tab-pipeline" class="tab-content hidden">
+        <h2 class="text-2xl font-bold text-white mb-6">📈 Sales Pipeline</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4" id="pipeline-board">
+          <div class="bg-slate-800/50 rounded-2xl border border-slate-700 p-4">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-semibold text-blue-400">🔵 ติดต่อเบื้องต้น</h3>
+              <span class="bg-blue-500/20 text-blue-300 text-xs px-2 py-1 rounded-full" id="stage-initial-count">0</span>
+            </div>
+            <div id="stage-initial" class="space-y-3 min-h-32"></div>
+          </div>
+          <div class="bg-slate-800/50 rounded-2xl border border-slate-700 p-4">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-semibold text-yellow-400">🟡 นำเสนอ</h3>
+              <span class="bg-yellow-500/20 text-yellow-300 text-xs px-2 py-1 rounded-full" id="stage-presentation-count">0</span>
+            </div>
+            <div id="stage-presentation" class="space-y-3 min-h-32"></div>
+          </div>
+          <div class="bg-slate-800/50 rounded-2xl border border-slate-700 p-4">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-semibold text-orange-400">🟠 เจรจาต่อรอง</h3>
+              <span class="bg-orange-500/20 text-orange-300 text-xs px-2 py-1 rounded-full" id="stage-negotiation-count">0</span>
+            </div>
+            <div id="stage-negotiation" class="space-y-3 min-h-32"></div>
+          </div>
+          <div class="bg-slate-800/50 rounded-2xl border border-slate-700 p-4">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-semibold text-emerald-400">🟢 ปิดการขาย</h3>
+              <span class="bg-emerald-500/20 text-emerald-300 text-xs px-2 py-1 rounded-full" id="stage-won-count">0</span>
+            </div>
+            <div id="stage-won" class="space-y-3 min-h-32"></div>
+          </div>
+          <div class="bg-slate-800/50 rounded-2xl border border-slate-700 p-4">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-semibold text-red-400">🔴 แพ้/ยกเลิก</h3>
+              <span class="bg-red-500/20 text-red-300 text-xs px-2 py-1 rounded-full" id="stage-lost-count">0</span>
+            </div>
+            <div id="stage-lost" class="space-y-3 min-h-32"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tasks Tab -->
+      <div id="tab-tasks" class="tab-content hidden">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <h2 class="text-2xl font-bold text-white">✅ งานที่ต้องทำ</h2>
+          <button onclick="openModal('task')" class="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2">
+            <span>➕</span> เพิ่มงานใหม่
+          </button>
+        </div>
+        <div id="tasks-list" class="space-y-3">
+          <p class="text-slate-400 text-center py-8">กำลังโหลดข้อมูล...</p>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Modal -->
+    <div id="modal-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+      <div class="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-lg max-h-[90%] overflow-auto scrollbar-thin animate-slideIn">
+        <div class="p-6 border-b border-slate-700">
+          <div class="flex items-center justify-between">
+            <h3 id="modal-title" class="text-xl font-bold text-white">เพิ่มข้อมูล</h3>
+            <button onclick="closeModal()" class="text-slate-400 hover:text-white transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <form id="modal-form" class="p-6 space-y-4">
+          <!-- Form fields will be dynamically inserted -->
+        </form>
+        <div class="p-6 border-t border-slate-700 flex gap-3 justify-end">
+          <button type="button" onclick="closeModal()" class="px-5 py-2.5 rounded-xl font-medium text-slate-300 hover:bg-slate-700 transition-colors">
+            ยกเลิก
+          </button>
+          <button type="button" onclick="submitForm()" id="submit-btn" class="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white px-5 py-2.5 rounded-xl font-medium transition-all">
+            บันทึก
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-emerald-500 text-white px-5 py-3 rounded-xl shadow-lg hidden transform transition-all duration-300 translate-y-10 opacity-0 z-[60]">
+      <p id="toast-message">บันทึกสำเร็จ!</p>
+    </div>
+
+    <!-- Delete Confirmation -->
+    <div id="delete-confirm" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+      <div class="bg-slate-800 rounded-2xl border border-red-500/50 p-6 max-w-sm w-full animate-slideIn">
+        <div class="text-center">
+          <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-3xl">⚠️</span>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-2">ยืนยันการลบ?</h3>
+          <p class="text-slate-400 text-sm mb-6">การดำเนินการนี้ไม่สามารถย้อนกลับได้</p>
+          <div class="flex gap-3 justify-center">
+            <button onclick="cancelDelete()" class="px-5 py-2.5 rounded-xl font-medium text-slate-300 hover:bg-slate-700 transition-colors">
+              ยกเลิก
+            </button>
+            <button onclick="confirmDelete()" id="confirm-delete-btn" class="bg-red-500 hover:bg-red-600 text-white px-5 py-2.5 rounded-xl font-medium transition-all">
+              ลบเลย
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // ----------------------------------------------------------------------
+    // GOOGLE SHEETS API CONFIGURATION
+    // ----------------------------------------------------------------------
+    const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwYX9QC7hnZ4ZW8JppP68MzRolKq90mfJBVupEAcLQ43_dVjCGcbF1VXkbsbuDFdFDGzA/exec';
+
+    window.elementSdk = {
+      init: (config) => { console.log('Mock Element SDK Initialized', config); },
+      setConfig: (cfg) => { console.log('Mock Set Config', cfg); }
+    };
+
+    let mockDbData = [];
+    let isConnectedToSheets = true;
+    
+    // SDK สำหรับคุยกับ Google Sheets
+    window.dataSdk = {
+      init: async (handler) => {
+        window.dataHandler = handler;
+        try {
+          // ใช้ fetch ปกติโดยไม่ต้องมี redirect: 'follow' แบบเจาะจง เพื่อลดโอกาสติด CORS ในบาง Browser
+          const response = await fetch(GOOGLE_APPS_SCRIPT_URL);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+          mockDbData = data;
+          isConnectedToSheets = true;
+          window.dataHandler.onDataChanged(mockDbData);
+          return { isOk: true };
+        } catch (error) {
+          // แสดงผล Error ที่เข้าใจง่ายขึ้นใน Console
+          console.warn("⚠️ การเชื่อมต่อ Google Sheets ล้มเหลว! สาเหตุที่พบบ่อยคือไม่ได้ตั้งค่า 'Who has access' เป็น 'Anyone' ตอนทำ Deploy Apps Script");
+          console.warn("กำลังสลับไปใช้ข้อมูลจำลอง (Mock Data) เพื่อให้แอปยังทำงานต่อได้...");
+          
+          isConnectedToSheets = false;
+          
+          // Fallback ข้อมูลจำลองหากโหลดไม่สำเร็จ เพื่อไม่ให้หน้าแอปค้าง
+          mockDbData = [
+            { __backendId: 'mock1', type: 'lead', name: 'คุณสมชาย (ตัวอย่าง)', company: 'บริษัท ไอที จำกัด', email: 'somchai@it.co.th', phone: '081-234-5678', status: 'new', notes: '⚠️ ไม่สามารถเชื่อมต่อกับ Google Sheets ได้', createdAt: new Date().toISOString() },
+            { __backendId: 'mock2', type: 'deal', name: 'ระบบ Server องค์กร (ตัวอย่าง)', company: 'ธนาคาร XYZ', stage: 'presentation', value: 1500000, probability: 60, product: 'Enterprise Server', notes: 'กรุณาตรวจสอบการตั้งค่า Deploy เป็น Anyone', createdAt: new Date(Date.now() - 86400000).toISOString() }
+          ];
+          
+          window.dataHandler.onDataChanged(mockDbData);
+          return { isOk: false, fallback: true };
+        }
+      },
+      create: async (data) => {
+        try {
+          const newData = { ...data, __backendId: Math.random().toString(36).substr(2, 9) };
+          mockDbData.push(newData);
+          window.dataHandler.onDataChanged(mockDbData);
+
+          if (!isConnectedToSheets) return { isOk: true, data: newData }; // ทำงานต่อได้ด้วย Mock data
+
+          const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ action: 'create', data: newData })
+          });
+          const result = await response.json();
+          return { isOk: result.isOk, data: result.data };
+        } catch (error) {
+          console.error("Create error:", error);
+          return { isOk: false };
+        }
+      },
+      update: async (data) => {
+        try {
+          const index = mockDbData.findIndex(d => d.__backendId === data.__backendId);
+          if (index !== -1) mockDbData[index] = data;
+          window.dataHandler.onDataChanged(mockDbData);
+
+          if (!isConnectedToSheets) return { isOk: true }; // ทำงานต่อได้ด้วย Mock data
+
+          const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ action: 'update', data: data })
+          });
+          const result = await response.json();
+          return { isOk: result.isOk };
+        } catch (error) {
+          console.error("Update error:", error);
+          return { isOk: false };
+        }
+      },
+      delete: async (item) => {
+        try {
+          mockDbData = mockDbData.filter(d => d.__backendId !== item.__backendId);
+          window.dataHandler.onDataChanged(mockDbData);
+
+          if (!isConnectedToSheets) return { isOk: true }; // ทำงานต่อได้ด้วย Mock data
+
+          const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ action: 'delete', id: item.__backendId })
+          });
+          const result = await response.json();
+          return { isOk: result.isOk };
+        } catch (error) {
+          console.error("Delete error:", error);
+          return { isOk: false };
+        }
+      }
+    };
+    // ----------------------------------------------------------------------
+
+    // Default configuration
+    const defaultConfig = {
+      app_title: 'IT Sales ERP',
+      company_name: 'ระบบจัดการงานขาย IT',
+      primary_color: '#10b981',
+      secondary_color: '#06b6d4',
+      background_color: '#0f172a',
+      text_color: '#f1f5f9',
+      accent_color: '#f59e0b'
+    };
+
+    let config = { ...defaultConfig };
+    let allData = [];
+    let currentModalType = null;
+    let editingItem = null;
+    let deleteTarget = null;
+    let recordCount = 0;
+
+    // Initialize Element SDK
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (newConfig) => {
+          config = { ...defaultConfig, ...newConfig };
+          applyConfig();
+        },
+        mapToCapabilities: (cfg) => ({
+          recolorables: [
+            {
+              get: () => cfg.background_color || defaultConfig.background_color,
+              set: (v) => window.elementSdk.setConfig({ background_color: v })
+            },
+            {
+              get: () => cfg.primary_color || defaultConfig.primary_color,
+              set: (v) => window.elementSdk.setConfig({ primary_color: v })
+            },
+            {
+              get: () => cfg.text_color || defaultConfig.text_color,
+              set: (v) => window.elementSdk.setConfig({ text_color: v })
+            }
+          ],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (cfg) => new Map([
+          ['app_title', cfg.app_title || defaultConfig.app_title],
+          ['company_name', cfg.company_name || defaultConfig.company_name]
+        ])
+      });
+    }
+
+    function applyConfig() {
+      document.getElementById('app-title').textContent = config.app_title || defaultConfig.app_title;
+      document.getElementById('company-name').textContent = config.company_name || defaultConfig.company_name;
+      document.body.style.backgroundColor = config.background_color || defaultConfig.background_color;
+      document.body.style.color = config.text_color || defaultConfig.text_color;
+    }
+
+    // Data Handler
+    const dataHandler = {
+      onDataChanged(data) {
+        allData = data;
+        recordCount = data.length;
+        renderAll();
+      }
+    };
+
+    // Initialize Data SDK
+    async function initApp() {
+      if (window.dataSdk) {
+        const result = await window.dataSdk.init(dataHandler);
+        if (!result.isOk && result.fallback) {
+          // หากเชื่อมต่อพัง ให้แจ้งเตือน แต่แอปยังทำงานได้ด้วยข้อมูลจำลอง
+          showToast('⚠️ เชื่อมต่อ Google Sheets ไม่สำเร็จ กรุณาเช็คการอนุญาตสิทธิ์ (Anyone)', 'error');
+        } else if (result.isOk) {
+          showToast('เชื่อมต่อฐานข้อมูล Google Sheets สำเร็จ!', 'success');
+        }
+      }
+      applyConfig();
+    }
+
+    // Render functions
+    function renderAll() {
+      renderDashboard();
+      renderLeads();
+      renderDeals();
+      renderPipeline();
+      renderTasks();
+      updateStats();
+    }
+
+    function updateStats() {
+      const leads = allData.filter(d => d.type === 'lead');
+      const deals = allData.filter(d => d.type === 'deal');
+      const activeDeals = deals.filter(d => !['won', 'lost'].includes(d.stage));
+      const wonDeals = deals.filter(d => d.stage === 'won');
+      const pipelineValue = activeDeals.reduce((sum, d) => sum + (d.value || 0), 0);
+      const totalValue = deals.reduce((sum, d) => sum + (d.value || 0), 0);
+
+      document.getElementById('total-deals').textContent = deals.length;
+      document.getElementById('total-value').textContent = formatCurrency(totalValue);
+      document.getElementById('dash-leads').textContent = leads.length;
+      document.getElementById('dash-active-deals').textContent = activeDeals.length;
+      document.getElementById('dash-pipeline-value').textContent = formatCurrency(pipelineValue);
+      document.getElementById('dash-won-deals').textContent = wonDeals.length;
+    }
+
+    function formatCurrency(value) {
+      if (value >= 1000000) return '฿' + (value / 1000000).toFixed(1) + 'M';
+      if (value >= 1000) return '฿' + (value / 1000).toFixed(0) + 'K';
+      return '฿' + value.toLocaleString();
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
+    }
+
+    function renderDashboard() {
+      const activities = [...allData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+      const activitiesEl = document.getElementById('recent-activities');
+      
+      if (activities.length === 0) {
+        activitiesEl.innerHTML = '<p class="text-slate-400 text-sm text-center py-4">ยังไม่มีกิจกรรม</p>';
+      } else {
+        activitiesEl.innerHTML = activities.map(item => `
+          <div class="flex items-center gap-3 p-3 bg-slate-700/30 rounded-xl">
+            <span class="text-xl">${item.type === 'lead' ? '👥' : item.type === 'deal' ? '💼' : '✅'}</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-white truncate">${item.name}</p>
+              <p class="text-xs text-slate-400">${formatDate(item.createdAt)}</p>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      const tasks = allData.filter(d => d.type === 'task' && d.status !== 'done').sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)).slice(0, 5);
+      const tasksEl = document.getElementById('upcoming-tasks');
+      
+      if (tasks.length === 0) {
+        tasksEl.innerHTML = '<p class="text-slate-400 text-sm text-center py-4">ยังไม่มีงาน</p>';
+      } else {
+        tasksEl.innerHTML = tasks.map(task => `
+          <div class="flex items-center gap-3 p-3 bg-slate-700/30 rounded-xl">
+            <span class="text-xl">${task.status === 'done' ? '✅' : '⏳'}</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-white truncate">${task.name}</p>
+              <p class="text-xs text-slate-400">กำหนด: ${formatDate(task.dueDate)}</p>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function renderLeads() {
+      const leads = allData.filter(d => d.type === 'lead');
+      const container = document.getElementById('leads-list');
+      
+      if (leads.length === 0) {
+        container.innerHTML = '<p class="text-slate-400 col-span-full text-center py-8">ยังไม่มีลูกค้าเป้าหมาย คลิก "เพิ่มลูกค้าใหม่" เพื่อเริ่มต้น</p>';
+        return;
+      }
+
+      container.innerHTML = leads.map(lead => `
+        <div class="bg-slate-800/50 rounded-2xl border border-slate-700 p-5 hover:border-emerald-500/50 transition-all">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-xl flex items-center justify-center text-white font-bold">
+                ${lead.name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <h4 class="font-semibold text-white">${lead.name}</h4>
+                <p class="text-sm text-slate-400">${lead.company || '-'}</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-xs font-medium ${getStatusClass(lead.status)}">${getStatusLabel(lead.status)}</span>
+          </div>
+          <div class="space-y-2 text-sm text-slate-400 mb-4">
+            ${lead.email ? `<p>📧 ${lead.email}</p>` : ''}
+            ${lead.phone ? `<p>📱 ${lead.phone}</p>` : ''}
+            ${lead.notes ? `<p class="text-slate-500 italic truncate">💬 ${lead.notes}</p>` : ''}
+          </div>
+          <div class="flex gap-2">
+            <button onclick="editItem('${lead.__backendId}')" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg text-sm transition-colors">แก้ไข</button>
+            <button onclick="convertToDeal('${lead.__backendId}')" class="flex-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 px-3 py-2 rounded-lg text-sm transition-colors">สร้างดีล</button>
+            <button onclick="requestDelete('${lead.__backendId}')" class="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-2 rounded-lg text-sm transition-colors">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderDeals() {
+      const deals = allData.filter(d => d.type === 'deal');
+      const container = document.getElementById('deals-list');
+      
+      if (deals.length === 0) {
+        container.innerHTML = '<p class="text-slate-400 col-span-full text-center py-8">ยังไม่มีดีล คลิก "สร้างดีลใหม่" เพื่อเริ่มต้น</p>';
+        return;
+      }
+
+      container.innerHTML = deals.map(deal => `
+        <div class="bg-slate-800/50 rounded-2xl border border-slate-700 p-5 hover:border-cyan-500/50 transition-all">
+          <div class="flex items-start justify-between mb-3">
+            <div>
+              <h4 class="font-semibold text-white text-lg">${deal.name}</h4>
+              <p class="text-sm text-slate-400">${deal.company || '-'}</p>
+            </div>
+            <span class="px-3 py-1 rounded-full text-xs font-medium ${getStageClass(deal.stage)}">${getStageLabel(deal.stage)}</span>
+          </div>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="bg-slate-700/30 rounded-xl p-3">
+              <p class="text-xs text-slate-400">มูลค่า</p>
+              <p class="text-lg font-bold text-emerald-400">฿${(deal.value || 0).toLocaleString()}</p>
+            </div>
+            <div class="bg-slate-700/30 rounded-xl p-3">
+              <p class="text-xs text-slate-400">โอกาสปิด</p>
+              <p class="text-lg font-bold text-cyan-400">${deal.probability || 0}%</p>
+            </div>
+          </div>
+          ${deal.product ? `<p class="text-sm text-slate-400 mb-2">📦 ${deal.product}</p>` : ''}
+          ${deal.notes ? `<p class="text-sm text-slate-500 italic mb-4 truncate">💬 ${deal.notes}</p>` : ''}
+          <div class="flex gap-2">
+            <button onclick="editItem('${deal.__backendId}')" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg text-sm transition-colors">แก้ไข</button>
+            <button onclick="updateDealStage('${deal.__backendId}')" class="flex-1 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 px-3 py-2 rounded-lg text-sm transition-colors">เปลี่ยนสถานะ</button>
+            <button onclick="requestDelete('${deal.__backendId}')" class="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-2 rounded-lg text-sm transition-colors">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderPipeline() {
+      const deals = allData.filter(d => d.type === 'deal');
+      const stages = ['initial', 'presentation', 'negotiation', 'won', 'lost'];
+      
+      stages.forEach(stage => {
+        const stageDeals = deals.filter(d => d.stage === stage);
+        const container = document.getElementById(`stage-${stage}`);
+        const countEl = document.getElementById(`stage-${stage}-count`);
+        
+        countEl.textContent = stageDeals.length;
+        
+        if (stageDeals.length === 0) {
+          container.innerHTML = '<p class="text-slate-500 text-xs text-center py-4">ไม่มีดีล</p>';
+        } else {
+          container.innerHTML = stageDeals.map(deal => `
+            <div class="bg-slate-700/50 rounded-xl p-3 cursor-pointer hover:bg-slate-700 transition-colors" onclick="editItem('${deal.__backendId}')">
+              <p class="font-medium text-white text-sm truncate">${deal.name}</p>
+              <p class="text-emerald-400 text-sm font-semibold">฿${(deal.value || 0).toLocaleString()}</p>
+              <p class="text-slate-400 text-xs">${deal.probability || 0}% โอกาส</p>
+            </div>
+          `).join('');
+        }
+      });
+    }
+
+    function renderTasks() {
+      const tasks = allData.filter(d => d.type === 'task');
+      const container = document.getElementById('tasks-list');
+      
+      if (tasks.length === 0) {
+        container.innerHTML = '<p class="text-slate-400 text-center py-8">ยังไม่มีงาน คลิก "เพิ่มงานใหม่" เพื่อเริ่มต้น</p>';
+        return;
+      }
+
+      const sortedTasks = tasks.sort((a, b) => {
+        if (a.status === 'done' && b.status !== 'done') return 1;
+        if (a.status !== 'done' && b.status === 'done') return -1;
+        return new Date(a.dueDate) - new Date(b.dueDate);
+      });
+
+      container.innerHTML = sortedTasks.map(task => `
+        <div class="bg-slate-800/50 rounded-xl border border-slate-700 p-4 flex items-center gap-4 ${task.status === 'done' ? 'opacity-60' : ''}">
+          <button onclick="toggleTaskStatus('${task.__backendId}')" class="w-6 h-6 rounded-full border-2 ${task.status === 'done' ? 'bg-emerald-500 border-emerald-500' : 'border-slate-500 hover:border-emerald-500'} flex items-center justify-center transition-colors">
+            ${task.status === 'done' ? '<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>' : ''}
+          </button>
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-white ${task.status === 'done' ? 'line-through text-slate-400' : ''}">${task.name}</p>
+            <div class="flex items-center gap-3 text-sm text-slate-400">
+              <span>📅 ${formatDate(task.dueDate)}</span>
+              ${task.notes ? `<span class="truncate">💬 ${task.notes}</span>` : ''}
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="editItem('${task.__backendId}')" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg text-sm transition-colors">แก้ไข</button>
+            <button onclick="requestDelete('${task.__backendId}')" class="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-2 rounded-lg text-sm transition-colors">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Helper functions
+    function getStatusClass(status) {
+      const classes = {
+        new: 'bg-blue-500/20 text-blue-300',
+        contacted: 'bg-yellow-500/20 text-yellow-300',
+        qualified: 'bg-emerald-500/20 text-emerald-300',
+        unqualified: 'bg-red-500/20 text-red-300'
+      };
+      return classes[status] || classes.new;
+    }
+
+    function getStatusLabel(status) {
+      const labels = { new: 'ใหม่', contacted: 'ติดต่อแล้ว', qualified: 'มีคุณภาพ', unqualified: 'ไม่ผ่าน' };
+      return labels[status] || 'ใหม่';
+    }
+
+    function getStageClass(stage) {
+      const classes = {
+        initial: 'bg-blue-500/20 text-blue-300',
+        presentation: 'bg-yellow-500/20 text-yellow-300',
+        negotiation: 'bg-orange-500/20 text-orange-300',
+        won: 'bg-emerald-500/20 text-emerald-300',
+        lost: 'bg-red-500/20 text-red-300'
+      };
+      return classes[stage] || classes.initial;
+    }
+
+    function getStageLabel(stage) {
+      const labels = { initial: 'ติดต่อเบื้องต้น', presentation: 'นำเสนอ', negotiation: 'เจรจาต่อรอง', won: 'ปิดการขาย', lost: 'แพ้/ยกเลิก' };
+      return labels[stage] || 'ติดต่อเบื้องต้น';
+    }
+
+    // Tab switching
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('text-emerald-400', 'bg-slate-900', 'border-t-2', 'border-emerald-400');
+        btn.classList.add('text-slate-400');
+      });
+      
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+      document.getElementById(`tab-${tabName}`).classList.add('animate-slideIn');
+      
+      const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
+      activeBtn.classList.remove('text-slate-400');
+      activeBtn.classList.add('text-emerald-400', 'bg-slate-900', 'border-t-2', 'border-emerald-400');
+    }
+
+    // Modal functions
+    function openModal(type, item = null) {
+      currentModalType = type;
+      editingItem = item;
+      
+      const titles = { lead: 'ลูกค้าเป้าหมาย', deal: 'ดีล/โอกาสการขาย', task: 'งานที่ต้องทำ' };
+      document.getElementById('modal-title').textContent = (item ? 'แก้ไข' : 'เพิ่ม') + titles[type];
+      
+      const form = document.getElementById('modal-form');
+      
+      if (type === 'lead') {
+        form.innerHTML = `
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-2">ชื่อ-นามสกุล *</label>
+              <input type="text" id="field-name" class="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:border-emerald-500 focus:outline-none" placeholder="ชื่อลูกค้า" value="${item?.name || ''}" required>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-2">บริษัท</label>
+              <input type="text" id="field-company" class="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:border-emerald-500 focus:outline-none" placeholder="ชื่อบริษัท" value="${item?.company || ''}">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">อีเมล</label>
+                <input type="email" id="field-email" class="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:border-emerald-500 focus:outline-none" placeholder="email@example.com" value="${item?.email || ''}">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">เบอร์โทร</label>
+                <input type="tel" id="field-phone" class="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:border-emerald-500 focus:outline-none" placeholder="0xx-xxx-xxxx" value="${item?.phone || ''}">
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-2">สถานะ</label>
+              <select id="field-status" class="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:outline-none">
+                <option value="new" ${item?.status === 'new' ? 'selected' : ''}>ใหม่</option>
+                <option value="contacted" ${item?.status === 'contacted' ? 'selected' : ''}>ติดต่อแล้ว</option>
+                <option value="qualified" ${item?.status === 'qualified' ? 'selected' : ''}>มีคุณภาพ</option>
+                <option value="unqualified" ${item?.status === 'unqualified' ? 'selected' : ''}>ไม่ผ่าน</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-2">หมายเหตุ</label>
+              <textarea id="field-notes" class="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:border-emerald-500 focus:outline-none resize-none" rows="3" placeholder="รายละเอียดเพิ่มเติม...">${item?.notes || ''}</textarea>
+            </div>
+          </div>
+        `;
+      } else if (type === 'deal') {
+        form.innerHTML = `
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-2">ชื่อดีล *</label>
+              <input type="text" id="field-name" class="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:border-emerald-500 focus:outline-none" placeholder="ชื่อโปรเจกต์/ดีล" value="${item?.name || ''}" required>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-2">บริษัทลูกค้า</label>
+              <input type="text" id="field-company" class="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:border-emerald-500 focus:outline-none" placeholder="ชื่อบริษัทลูกค้า" value="${item?.company || ''}">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">มูลค่า (บาท)</label>
+                <input type="number" id="field-value" class="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:border-emerald-500 focus:outline-none" placeholder="0" value="${item?.value || ''}">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">โอกาสปิด (%)</label>
+                <input type="number" id="field-probability" min="0" max="100" class="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:border-emerald-500 focus:outline-none" placeholder="50" value="${item?.probability || ''}">
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-2">ขั้นตอน</label>
+              <select id="field-stage" class="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:outline-none">
+                <option value="initial" ${item?.stage === 'initial' ? 'selected' : ''}>ติดต่อเบื้องต้น</option>
+                <option value="presentation" ${item?.stage === 'presentation' ? 'selected' : ''}>นำเสนอ</option>
+                <option value="negotiation" ${item?.stage === 'negotiation' ? 'selected' : ''}>เจรจาต่อรอง</option>
+                <option value="won" ${item?.stage === 'won' ? 'selected' : ''}>ปิดการขาย</option>
+                <option value="lost" ${item?.stage === 'lost' ? 'selected' : ''}>แพ้/ยกเลิก</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-2">สินค้า/บริการ</label>
+              <input type="text" id="field-product" class="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:border-emerald-500 focus:outline-none" placeholder="เช่น Server, Cloud, Software" value="${item?.product || ''}">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-2">หมายเหตุ</label>
+              <textarea id="field-notes" class="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:border-emerald-500 focus:outline-none resize-none" rows="3" placeholder="รายละเอียดเพิ่มเติม...">${item?.notes || ''}</textarea>
+            </div>
+          </div>
+        `;
+      } else if (type === 'task') {
+        form.innerHTML = `
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-2">ชื่องาน *</label>
+              <input type="text" id="field-name" class="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:border-emerald-500 focus:outline-none" placeholder="รายละเอียดงาน" value="${item?.name || ''}" required>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-2">วันครบกำหนด</label>
+              <input type="date" id="field-dueDate" class="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:outline-none" value="${item?.dueDate ? item.dueDate.split('T')[0] : ''}">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-2">สถานะ</label>
+              <select id="field-status" class="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:outline-none">
+                <option value="pending" ${item?.status === 'pending' ? 'selected' : ''}>รอดำเนินการ</option>
+                <option value="in_progress" ${item?.status === 'in_progress' ? 'selected' : ''}>กำลังทำ</option>
+                <option value="done" ${item?.status === 'done' ? 'selected' : ''}>เสร็จแล้ว</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-2">หมายเหตุ</label>
+              <textarea id="field-notes" class="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:border-emerald-500 focus:outline-none resize-none" rows="3" placeholder="รายละเอียดเพิ่มเติม...">${item?.notes || ''}</textarea>
+            </div>
+          </div>
+        `;
+      }
+      
+      document.getElementById('modal-overlay').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('modal-overlay').classList.add('hidden');
+      currentModalType = null;
+      editingItem = null;
+    }
+
+    async function submitForm() {
+      const nameField = document.getElementById('field-name');
+      if (!nameField.value.trim()) {
+        showToast('กรุณากรอกชื่อ', 'error');
+        return;
+      }
+
+      if (!editingItem && recordCount >= 999) {
+        showToast('ข้อมูลเต็มแล้ว (สูงสุด 999 รายการ)', 'error');
+        return;
+      }
+
+      const submitBtn = document.getElementById('submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="animate-pulse">กำลังบันทึก...</span>';
+
+      const data = {
+        type: currentModalType,
+        name: nameField.value.trim(),
+        company: document.getElementById('field-company')?.value || '',
+        email: document.getElementById('field-email')?.value || '',
+        phone: document.getElementById('field-phone')?.value || '',
+        status: document.getElementById('field-status')?.value || 'new',
+        value: parseInt(document.getElementById('field-value')?.value) || 0,
+        probability: parseInt(document.getElementById('field-probability')?.value) || 0,
+        stage: document.getElementById('field-stage')?.value || 'initial',
+        product: document.getElementById('field-product')?.value || '',
+        notes: document.getElementById('field-notes')?.value || '',
+        dueDate: document.getElementById('field-dueDate')?.value ? new Date(document.getElementById('field-dueDate').value).toISOString() : '',
+        createdAt: editingItem?.createdAt || new Date().toISOString()
+      };
+
+      let result;
+      if (editingItem) {
+        result = await window.dataSdk.update({ ...data, __backendId: editingItem.__backendId });
+      } else {
+        result = await window.dataSdk.create(data);
+      }
+
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'บันทึก';
+
+      if (result.isOk) {
+        showToast(editingItem ? 'แก้ไขสำเร็จ!' : 'เพิ่มข้อมูลสำเร็จ!');
+        closeModal();
+      } else {
+        showToast('เกิดข้อผิดพลาด กรุณาลองใหม่', 'error');
+      }
+    }
+
+    function editItem(id) {
+      const item = allData.find(d => d.__backendId === id);
+      if (item) {
+        openModal(item.type, item);
+      }
+    }
+
+    async function convertToDeal(leadId) {
+      const lead = allData.find(d => d.__backendId === leadId);
+      if (!lead) return;
+
+      if (recordCount >= 999) {
+        showToast('ข้อมูลเต็มแล้ว (สูงสุด 999 รายการ)', 'error');
+        return;
+      }
+
+      const dealData = {
+        type: 'deal',
+        name: `ดีล - ${lead.name}`,
+        company: lead.company,
+        email: lead.email,
+        phone: lead.phone,
+        status: '',
+        value: 0,
+        probability: 20,
+        stage: 'initial',
+        product: '',
+        notes: lead.notes,
+        dueDate: '',
+        createdAt: new Date().toISOString()
+      };
+
+      const result = await window.dataSdk.create(dealData);
+      if (result.isOk) {
+        showToast('สร้างดีลจากลูกค้าเป้าหมายสำเร็จ!');
+        switchTab('deals');
+      } else {
+        showToast('เกิดข้อผิดพลาด', 'error');
+      }
+    }
+
+    function updateDealStage(dealId) {
+      const deal = allData.find(d => d.__backendId === dealId);
+      if (deal) {
+        openModal('deal', deal);
+      }
+    }
+
+    async function toggleTaskStatus(taskId) {
+      const task = allData.find(d => d.__backendId === taskId);
+      if (!task) return;
+
+      const newStatus = task.status === 'done' ? 'pending' : 'done';
+      const result = await window.dataSdk.update({ ...task, status: newStatus });
+      
+      if (result.isOk) {
+        showToast(newStatus === 'done' ? 'เสร็จสิ้น! 🎉' : 'เปิดงานอีกครั้ง');
+      }
+    }
+
+    // Delete functions
+    function requestDelete(id) {
+      deleteTarget = id;
+      document.getElementById('delete-confirm').classList.remove('hidden');
+    }
+
+    function cancelDelete() {
+      deleteTarget = null;
+      document.getElementById('delete-confirm').classList.add('hidden');
+    }
+
+    async function confirmDelete() {
+      if (!deleteTarget) return;
+
+      const item = allData.find(d => d.__backendId === deleteTarget);
+      if (!item) return;
+
+      const btn = document.getElementById('confirm-delete-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="animate-pulse">กำลังลบ...</span>';
+
+      const result = await window.dataSdk.delete(item);
+      
+      btn.disabled = false;
+      btn.innerHTML = 'ลบเลย';
+
+      if (result.isOk) {
+        showToast('ลบข้อมูลสำเร็จ');
+      } else {
+        showToast('เกิดข้อผิดพลาด', 'error');
+      }
+
+      cancelDelete();
+    }
+
+    // Toast notification
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      
+      toast.className = `fixed bottom-4 right-4 px-5 py-3 rounded-xl shadow-lg transform transition-all duration-300 ${type === 'error' ? 'bg-red-500' : 'bg-emerald-500'} text-white z-50`;
+      toastMsg.textContent = message;
+      
+      toast.classList.remove('hidden', 'translate-y-10', 'opacity-0');
+      
+      setTimeout(() => {
+        toast.classList.add('translate-y-10', 'opacity-0');
+        setTimeout(() => toast.classList.add('hidden'), 300);
+      }, 3000);
+    }
+
+    // Initialize
+    initApp();
+  </script>
+</body>
+</html>
